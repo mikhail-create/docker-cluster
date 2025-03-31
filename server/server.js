@@ -40,8 +40,6 @@ app.get("/info", (req, res) => {
 });
 
 app.get("/count", (req, res) => {
-  console.log("REQUEST HERE");
-
   const text = fs.readFileSync("./text.txt", "utf8");
   res.json({ server: SERVER_ID, length: text.length });
 });
