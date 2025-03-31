@@ -5,36 +5,57 @@ services:
     build: ./server
     environment:
       - SERVER_ID=1
-    networks:
-      - app-network
+    volumes:
+      - ./server/server.js:/app/server.js
 
   server2:
     build: ./server
     environment:
       - SERVER_ID=2
-    networks:
-      - app-network
+    volumes:
+      - ./server/server.js:/app/server.js  
 
   server3:
     build: ./server
     environment:
       - SERVER_ID=3
-    networks:
-      - app-network
+    volumes:
+      - ./server/server.js:/app/server.js
 
   nginx:
-    image: nginx:latest
+    image: nginx:1.27.4-alpine3.21
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - "8080:80"
-    networks:
-      - app-network
+      - 8080:80
     depends_on:
       - server1
       - server2
       - server3
 
-networks:
-  app-network:
-    driver: bridge
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - prometheus-data:/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      nginx:
+        condition: service_started
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3001:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      prometheus:
+        condition: service_started
+
+volumes:
+  prometheus-data:
+  grafana-storage:
