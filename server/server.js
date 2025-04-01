@@ -40,8 +40,37 @@ app.get("/info", (req, res) => {
 });
 
 app.get("/count", (req, res) => {
-  const text = fs.readFileSync("./text.txt", "utf8");
-  res.json({ server: SERVER_ID, length: text.length });
+  const charToFind = req.query.char;
+
+  if (!charToFind || charToFind.length !== 1) {
+    return res.status(400).json({
+      server: SERVER_ID,
+      error: "Please provide a single character to search for using the 'char' query parameter"
+    });
+  }
+
+  try {
+    const text = fs.readFileSync("./text.txt", "utf8");
+    let count = 0;
+
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === charToFind) {
+        count++;
+      }
+    }
+
+    res.json({
+      server: SERVER_ID,
+      character: charToFind,
+      count: count,
+      length: text.length
+    });
+  } catch (error) {
+    res.status(500).json({
+      server: SERVER_ID,
+      error: "Failed to read the file"
+    });
+  }
 });
 
 app.listen(PORT, () => {
