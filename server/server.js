@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const promClient = require('prom-client');
+const natural = require('natural');
 const app = express();
 
 const SERVER_ID = process.env.SERVER_ID || "Unknown";
@@ -28,7 +29,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
 // Metrics endpoint
 app.get('/metrics', async (req, res) => {
   res.set('Content-Type', promClient.register.contentType);
@@ -49,6 +49,8 @@ app.get("/count", (req, res) => {
     });
   }
 
+  // TODO: Буферизированное чтение
+  // TODO: AI Времязатратные операции
   try {
     const text = fs.readFileSync("./text.txt", "utf8");
     let count = 0;
@@ -71,6 +73,32 @@ app.get("/count", (req, res) => {
       error: "Failed to read the file"
     });
   }
+});
+
+// NLP AI operations endpoint
+app.get("/nlp", (req, res) => {
+  const textFile = fs.readFileSync("./text.txt", "utf8");
+  const text = req.query.text || textFile;
+  const startTime = Date.now();
+  // Initialize NLP tools
+  const tokenizer = new natural.WordTokenizer();
+  const stemmer = natural.PorterStemmer;
+  const sentiment = new natural.SentimentAnalyzer('English', stemmer, 'afinn');
+  
+  // Perform various NLP operations
+  const tokens = tokenizer.tokenize(text);
+  const stemmedWords = tokens.map(word => stemmer.stem(word));
+  const sentimentScore = sentiment.getSentiment(tokens);
+  
+  // Calculate sentiment label
+  let sentimentLabel = 'neutral';
+  if (sentimentScore > 0.2) sentimentLabel = 'positive';
+  else if (sentimentScore < -0.2) sentimentLabel = 'negative';
+
+  res.json({
+    server: SERVER_ID,
+    processingTime: `${Date.now() - startTime}ms`
+  });
 });
 
 app.listen(PORT, () => {
