@@ -7,12 +7,6 @@ services:
       - SERVER_ID=1
     volumes:
       - ./server/server.js:/app/server.js
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '0.5'  # Limits to 50% of a single CPU core
-    #     reservations:
-    #       cpus: '0.1'
 
   server2:
     build: ./server
@@ -20,12 +14,6 @@ services:
       - SERVER_ID=2
     volumes:
       - ./server/server.js:/app/server.js  
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '0.5'  # Limits to 50% of a single CPU core
-    #     reservations:
-    #       cpus: '0.1'
 
   server3:
     build: ./server
@@ -33,13 +21,6 @@ services:
       - SERVER_ID=3
     volumes:
       - ./server/server.js:/app/server.js
-    # deploy:
-    #   resources:
-    #     limits:
-    #       cpus: '0.5'  # Limits to 50% of a single CPU core
-    #     reservations:
-    #       cpus: '0.1'
-
   nginx:
     image: nginx:1.27.4-alpine3.21
     volumes:

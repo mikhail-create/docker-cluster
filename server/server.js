@@ -78,7 +78,10 @@ app.get("/count", (req, res) => {
 // NLP AI operations endpoint
 app.get("/nlp", (req, res) => {
   const textFile = fs.readFileSync("./text.txt", "utf8");
-  const text = req.query.text || textFile;
+  // Take only 1/10 of the text file
+  const halfLength = Math.floor(textFile.length / 10);
+  const halfText = textFile.substring(0, halfLength);
+  const text = req.query.text || halfText;
   const startTime = Date.now();
   // Initialize NLP tools
   const tokenizer = new natural.WordTokenizer();
